@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>Servicios Automotrices - CLICKCAR</title>
+</head>
+<body>
+    <div class="container">
+        <div class="banner-clickcar-bg">
+            <div class="banner-overlay">
+                <div class="banner-content">
+                    <h1 class="banner-title"><span class="white">CLICK</span><span class="red">CAR</span></h1>
+                    <p class="banner-desc">Fácil de recordar, enfocado en la app ("un clic y listo").</p>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="main-content">
+            <div class="services-section">
+                <h2>📋 Lista de Servicios Disponibles</h2>
+                <div class="services-grid" id="servicesGrid">
+                    <!-- Los servicios se generarán dinámicamente con JavaScript -->
+                </div>
+            </div>
+
+            <div class="quote-section">
+                <h2>💰 Cotización</h2>
+                
+                <form id="customerForm">
+                    <div class="quote-card">
+                        <div class="quote-header">
+                            <h3>Datos del Cliente y Vehículo</h3>
+                            <p class="quote-sub">Completa la información para generar la cotización profesional</p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="customerName">Nombre del Cliente</label>
+                                <input type="text" id="customerName" name="customerName" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="customerPhone">Teléfono</label>
+                                <input type="tel" id="customerPhone" name="customerPhone" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="customerEmail">Email</label>
+                                <input type="email" id="customerEmail" name="customerEmail">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="customerMunicipio">Municipio</label>
+                                <input type="text" id="customerMunicipio" name="customerMunicipio" placeholder="Ej. Guadalajara" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="carBrand">Marca del Vehículo</label>
+                                <select id="carBrand" name="carBrand" required onchange="updateCarModels()">
+                                    <option value="">Seleccionar marca</option>
+                                    <option value="Toyota">Toyota</option>
+                                    <option value="Honda">Honda</option>
+                                    <option value="Ford">Ford</option>
+                                    <option value="Chevrolet">Chevrolet</option>
+                                    <option value="Nissan">Nissan</option>
+                                    <option value="Volkswagen">Volkswagen</option>
+                                    <option value="BMW">BMW</option>
+                                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                                    <option value="Audi">Audi</option>
+                                    <option value="Mazda">Mazda</option>
+                                    <option value="Hyundai">Hyundai</option>
+                                    <option value="Kia">Kia</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="carModel">Modelo</label>
+                                <select id="carModel" name="carModel" required>
+                                    <option value="">Seleccionar modelo</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="carYear">Año</label>
+                                <input type="number" id="carYear" name="carYear" min="1990" max="2025" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="carPlate">Placas</label>
+                                <input type="text" id="carPlate" name="carPlate" style="text-transform: uppercase;">
+                            </div>
+                        </div>
+
+                        <div class="quote-actions">
+                            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; width:100%;">
+                                <button type="button" class="btn btn-primary" onclick="generateQuote()">📄 Generar Cotización</button>
+                                <button type="button" class="btn btn-success" id="payBtn" onclick="startPayment()">💳 Pagar</button>
+                                <button type="button" class="btn btn-print" onclick="printInvoice()" style="display: none;" id="printBtn">🖨️ Imprimir Factura</button>
+                                <button type="button" class="btn" onclick="clearAllData()" style="display: none;" id="newQuoteBtn">🔄 Nueva Cotización</button>
+                            </div>
+                            <div class="form-note">Puedes revisar los servicios seleccionados y el total a la derecha.</div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="selected-services">
+                    <h3>Servicios Seleccionados:</h3>
+                    <div id="selectedServicesList">
+                        <p style="color: #7f8c8d; font-style: italic;">No hay servicios seleccionados</p>
+                    </div>
+                </div>
+
+                <div class="total-section">
+                    <h3>Total a Pagar:</h3>
+                    <div class="total-amount" id="totalAmount">$0.00</div>
+                </div>
+                
+            </div>
+        </div>
+
+        <!-- Card payment modal (Mercado Pago-style simulación) -->
+        <div id="cardModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:10001; align-items:center; justify-content:center;">
+            <div style="background:#f6fbff; width:400px; border-radius:10px; padding:0; box-shadow:0 12px 36px rgba(0,0,0,0.25); overflow:hidden;">
+                <div style="background: linear-gradient(90deg,#00a2ff 0%, #0066cc 100%); color:white; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <img src="mp_logo.png" alt="MP" style="width:36px; height:36px; border-radius:6px; background:white; padding:4px;" onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-weight:700; font-size:16px;">Pagar con tarjeta</div>
+                            <div style="font-size:12px; opacity:0.9;">Transacción segura (simulada)</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="closeCardModal()" style="background:transparent; border:none; color:white; font-size:18px;">✕</button>
+                </div>
+
+                <div style="padding:14px 16px;">
+                    <div style="margin-top:6px; font-size:13px; color:#2c3e50;">Ingresa los datos de tu tarjeta (simulación Mercado Pago)</div>
+
+                    <div style="margin-top:12px; display:flex; flex-direction:column; gap:8px;">
+                        <input id="cardNumber" placeholder="Número de tarjeta" maxlength="19" style="padding:12px; font-size:14px; border:1px solid #e6eef8; border-radius:8px; background:#fff;">
+                        <div style="display:flex; gap:8px;">
+                            <input id="cardExpiry" placeholder="MM/AA" maxlength="5" style="flex:1; padding:12px; font-size:14px; border:1px solid #e6eef8; border-radius:8px; background:#fff;">
+                            <input id="cardCvv" placeholder="CVV" maxlength="4" style="width:110px; padding:12px; font-size:14px; border:1px solid #e6eef8; border-radius:8px; background:#fff;">
+                        </div>
+                        <input id="cardHolder" placeholder="Titular de la tarjeta" style="padding:12px; font-size:14px; border:1px solid #e6eef8; border-radius:8px; background:#fff;">
+                    </div>
+
+                    <div id="cardError" style="color:#e74c3c; margin-top:8px; display:none; font-size:13px;"></div>
+
+                    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:12px;">
+                        <button class="btn" onclick="closeCardModal()" style="background:#f0f4f8; border:none; padding:10px 12px; border-radius:8px;">Cancelar</button>
+                        <button class="btn btn-success" id="confirmCardBtn" onclick="confirmCardPayment()" style="background:#0066cc; color:white; border:none; padding:10px 12px; border-radius:8px;">Pagar ahora</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Factura -->
+        <div class="invoice" id="invoice">
+            <div class="invoice-header">
+                <h2>FACTURA DE SERVICIOS AUTOMOTRICES</h2>
+                <p>Fecha: <span id="invoiceDate"></span></p>
+                <p>No. Cotización: <span id="invoiceNumber"></span></p>
+            </div>
+
+            <div class="invoice-info">
+                <div class="invoice-section">
+                    <h3>Datos del Cliente</h3>
+                    <p><strong>Nombre:</strong> <span id="invoiceCustomerName"></span></p>
+                    <p><strong>Teléfono:</strong> <span id="invoiceCustomerPhone"></span></p>
+                    <p><strong>Municipio:</strong> <span id="invoiceCustomerMunicipio"></span></p>
+                    <p><strong>Email:</strong> <span id="invoiceCustomerEmail"></span></p>
+                </div>
+
+                <div class="invoice-section">
+                    <h3>Datos del Vehículo</h3>
+                    <p><strong>Marca:</strong> <span id="invoiceCarBrand"></span></p>
+                    <p><strong>Modelo:</strong> <span id="invoiceCarModel"></span></p>
+                    <p><strong>Año:</strong> <span id="invoiceCarYear"></span></p>
+                    <p><strong>Placas:</strong> <span id="invoiceCarPlate"></span></p>
+                </div>
+            </div>
+
+            <div class="invoice-services">
+                <h3>Servicios Solicitados</h3>
+                <table class="services-table">
+                    <thead>
+                        <tr>
+                            <th>Servicio</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceServicesList">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="invoice-total">
+                <h3>Total a Pagar:</h3>
+                <div class="amount" id="invoiceTotalAmount">$0.00</div>
+            </div>
+        </div>
+
+        <!-- Payment success overlay -->
+        <div id="paymentOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:9999;">
+            <div style="background:white; padding:20px; border-radius:8px; width:340px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+                <img src="pago_ok.png" alt="Pago Exitoso" style="width:64px; height:64px; display:block; margin:0 auto;" onerror="this.style.display='none'">
+                <div id="paymentOverlayEmoji" style="font-size:48px;">we✅</div>
+                <div style="margin-top:8px; font-weight:700; color:#27ae60;">Pago Exitoso</div>
+                <div style="margin-top:8px; color:#7f8c8d; font-size:14px;">Gracias, tu pago ha sido procesado correctamente.</div>
+                <div style="margin-top:14px; display:flex; gap:8px; justify-content:center;">
+                    <button class="btn" onclick="closePaymentOverlay()">Cerrar</button>
+                    <button class="btn btn-success" onclick="showMechanicMap()">Ver ubicación del mecánico</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini-map modal (simulado) -->
+        <div id="mapModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10000; align-items:center; justify-content:center;">
+            <div style="background:white; width:420px; border-radius:8px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="margin:0; font-size:18px;">Mecánico en Camino</h3>
+                    <button class="btn" onclick="closeMapModal()">✕</button>
+                </div>
+                <div id="mapStatus" style="display:flex; gap:10px; align-items:center; margin-top:10px;">
+                    <div style="background:#f0f8ff; padding:10px 12px; border-radius:8px; flex:1; box-shadow:0 4px 8px rgba(0,0,0,0.06);">
+                        <div style="font-weight:700; color:#0b3458;">El mecánico va en camino</div>
+                        <div id="mechanicInfo" style="font-size:13px; color:#34495e; margin-top:6px;">Mecánico: Juan Pérez · Vehículo: Moto 125</div>
+                    </div>
+                    <div style="font-size:14px; color:#2c3e50;">Tiempo estimado: <span id="eta">--</span> mins</div>
+                </div>
+                <div id="miniMap" style="height:260px; background:transparent; border-radius:6px; margin-top:10px; position:relative; overflow:hidden;">
+                    <!-- Leaflet map will be injected here -->
+                </div>
+                <div style="margin-top:10px; display:flex; gap:8px; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-success" onclick="openWhatsApp()" style="background:#25D366; color:white; border:none; padding:12px 18px; border-radius:8px;">Abrir WhatsApp</button>
+                        <button class="btn" onclick="closeMapModal()" style="padding:12px 18px; border-radius:8px;">Cerrar</button>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button class="btn" onclick="reloadMap()" style="padding:8px 12px; border-radius:8px; background:#f0f4f8;">Recargar mapa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lista de servicios con precios e imágenes
+        const services = [
+            { id: 'grua', name: 'Servicio de Grúa', price: 800.00, description: 'Remolque y transporte de vehículos averiados las 24 horas del día.', img: 'grua.jpg' },
+            { id: 'aceite', name: 'Cambio de Aceite y Filtros', price: 450.00, description: 'Cambio completo de aceite de motor y filtros para mantener el rendimiento óptimo.', img: 'cambio_aceite.jpg' },
+            { id: 'bateria', name: 'Reemplazo de Batería', price: 300.00, description: 'Instalación de batería nueva con garantía y prueba del sistema de carga.', img: 'bateria_reemplazo.jpg' },
+            { id: 'frenos', name: 'Inspección y Sustitución de Frenos (Balatas y Discos)', price: 650.00, description: 'Revisión completa del sistema de frenos, cambio de balatas y discos si es necesario.', img: 'balatas.jpg' },
+            { id: 'plumas', name: 'Reemplazo de Plumas Limpiaparabrisas', price: 120.00, description: 'Cambio de plumas limpiaparabrisas para mejor visibilidad en condiciones climáticas adversas.', img: 'parabrisas.jpg' },
+            { id: 'diagnostico', name: 'Diagnóstico Electrónico Básico (Lectura de Códigos)', price: 200.00, description: 'Escaneo del sistema electrónico del vehículo para detectar fallas y códigos de error.', img: 'diagnostico.jpg' },
+            { id: 'lamparas', name: 'Reemplazo de Lámparas y Fusibles', price: 80.00, description: 'Cambio de focos y fusibles quemados para el correcto funcionamiento del sistema eléctrico.', img: 'lamparas.jpg' },
+            { id: 'bujias', name: 'Sustitución de Bujías y Bobinas', price: 350.00, description: 'Cambio de bujías y bobinas de encendido para mejorar el rendimiento del motor.', img: 'bujias.jpg' },
+            { id: 'fluidos', name: 'Inspección y Rellenado de Fluidos', price: 150.00, description: 'Revisión y recarga de todos los fluidos del vehículo: frenos, dirección, transmisión.', img: 'rellenado.jpg' },
+            { id: 'revision', name: 'Revisión de Seguridad de 30 Puntos', price: 250.00, description: 'Inspección completa de 30 puntos críticos de seguridad y funcionamiento del vehículo.', img: 'revision.jpg' },
+            { id: 'desinfeccion', name: 'Servicio de Desinfección Interior', price: 180.00, description: 'Limpieza y desinfección profunda del interior del vehículo con productos especializados.', img: 'desinfeccion.jpg' },
+            { id: 'arranque', name: 'Asistencia de Arranque (Jump Start)', price: 100.00, description: 'Servicio de emergencia para arrancar vehículos con batería descargada.', img: 'asistencia.jpg' },
+            { id: 'accesorios', name: 'Instalación de Accesorios Menores', price: 200.00, description: 'Instalación profesional de accesorios como luces, bocinas, cargadores y más.', img: 'instalacion.jpg' }
+        ];
+
+        // Base de datos de modelos por marca
+        const carModels = {
+            'Toyota': [
+                'Corolla', 'Camry', 'RAV4', 'Highlander', 'Prius', 'Yaris', 'Avalon', 
+                'Sienna', 'Tacoma', 'Tundra', 'Sequoia', 'Land Cruiser', 'Venza', 
+                'C-HR', 'Supra', '4Runner', 'Prius Prime', 'Mirai'
+            ],
+            'Honda': [
+                'Civic', 'Accord', 'CR-V', 'Pilot', 'HR-V', 'Fit', 'Insight', 
+                'Passport', 'Ridgeline', 'Odyssey', 'Clarity', 'Civic Type R',
+                'Accord Hybrid', 'CR-V Hybrid', 'Pilot Elite'
+            ],
+            'Ford': [
+                'F-150', 'Escape', 'Explorer', 'Focus', 'Fusion', 'Edge', 'Expedition', 
+                'Mustang', 'Ranger', 'EcoSport', 'Bronco', 'Maverick', 'Transit', 
+                'F-250', 'F-350', 'Mustang Mach-E', 'Lightning'
+            ],
+            'Chevrolet': [
+                'Silverado', 'Equinox', 'Malibu', 'Traverse', 'Tahoe', 'Suburban', 
+                'Camaro', 'Corvette', 'Blazer', 'Trax', 'Sonic', 'Impala', 'Cruze', 
+                'Colorado', 'Spark', 'Bolt', 'Volt'
+            ],
+            'Nissan': [
+                'Altima', 'Sentra', 'Rogue', 'Murano', 'Pathfinder', 'Armada', 
+                'Frontier', 'Titan', 'Versa', 'Kicks', 'Maxima', '370Z', 'Leaf', 
+                'Juke', 'Quest', 'NV200', 'GT-R'
+            ]
+            ,
+            'Volkswagen': [
+                'Golf', 'Jetta', 'Passat', 'Tiguan', 'Polo', 'Arteon', 'Taos', 'T-Cross', 'Atlas', 'Amarok'
+            ],
+            'BMW': [
+                'Serie 1', 'Serie 2', 'Serie 3', 'Serie 4', 'Serie 5', 'Serie 6', 'Serie 7', 'X1', 'X3', 'X5', 'X7', 'Z4', 'i3', 'i8'
+            ],
+            'Mercedes-Benz': [
+                'Clase A', 'Clase B', 'Clase C', 'Clase E', 'Clase S', 'GLA', 'GLC', 'GLE', 'GLS', 'Clase V'
+            ],
+            'Audi': [
+                'A1', 'A3', 'A4', 'A5', 'A6', 'A7', 'A8', 'Q2', 'Q3', 'Q5', 'Q7', 'Q8', 'TT'
+            ],
+            'Mazda': [
+                '2', '3', 'CX-3', 'CX-30', 'CX-5', 'CX-9', '6', 'MX-5'
+            ],
+            'Hyundai': [
+                'Accent', 'Elantra', 'i10', 'i20', 'i30', 'Tucson', 'Santa Fe', 'Kona', 'Venue', 'Palisade'
+            ],
+            'Kia': [
+                'Picanto', 'Rio', 'Forte', 'Sportage', 'Sorento', 'Seltos', 'Stinger', 'Carnival'
+            ]
+        };
+
+        let selectedServices = [];
+
+        // Generar lista de servicios
+        function generateServicesList() {
+            const servicesGrid = document.getElementById('servicesGrid');
+            servicesGrid.innerHTML = '';
+
+            services.forEach(service => {
+                const serviceDiv = document.createElement('div');
+                serviceDiv.className = 'service-item';
+                serviceDiv.id = `service-${service.id}`;
+                serviceDiv.setAttribute('data-img', '');
+                serviceDiv.style.setProperty('--service-img', `url('${service.img}')`);
+                serviceDiv.innerHTML = `
+                    <div class="service-overlay">
+                        <div class="service-content">
+                            <div class="service-name">${service.name}</div>
+                            <div class="service-description">${service.description}</div>
+                            <div class="service-price">$${service.price.toFixed(2)}</div>
+                        </div>
+                    </div>
+                    <button class="service-btn" onclick="toggleService('${service.id}')" id="btn-${service.id}">
+                        ➕ Agregar Servicio
+                    </button>
+                `;
+                servicesGrid.appendChild(serviceDiv);
+            });
+        }
+
+        // Alternar selección de servicio
+        function toggleService(serviceId) {
+            const service = services.find(s => s.id === serviceId);
+            const serviceItem = document.getElementById(`service-${serviceId}`);
+            const button = document.getElementById(`btn-${serviceId}`);
+            
+            const isAlreadySelected = selectedServices.some(s => s.id === serviceId);
+
+            if (isAlreadySelected) {
+                // Remover servicio
+                selectedServices = selectedServices.filter(s => s.id !== serviceId);
+                serviceItem.classList.remove('selected');
+                button.classList.remove('added');
+                button.innerHTML = '➕ Agregar Servicio';
+            } else {
+                // Agregar servicio
+                selectedServices.push(service);
+                serviceItem.classList.add('selected');
+                button.classList.add('added');
+                button.innerHTML = '✅ ¡Agregado!';
+            }
+
+            updateSelectedServicesList();
+            updateTotal();
+        }
+
+        // Actualizar lista de servicios seleccionados
+        function updateSelectedServicesList() {
+            const selectedServicesList = document.getElementById('selectedServicesList');
+            
+            if (selectedServices.length === 0) {
+                selectedServicesList.innerHTML = '<p style="color: #7f8c8c; font-style: italic;">No hay servicios seleccionados</p>';
+                return;
+            }
+
+            selectedServicesList.innerHTML = selectedServices.map(service => 
+                `<div class="selected-service">
+                    <span>${service.name}</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span>$${service.price.toFixed(2)}</span>
+                        <button onclick="removeService('${service.id}')" style="background: #e74c3c; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px;">✕</button>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        // Función para remover un servicio específico
+        function removeService(serviceId) {
+            toggleService(serviceId);
+        }
+
+        // Actualizar modelos de vehículos según la marca seleccionada
+        function updateCarModels() {
+            const brandSelect = document.getElementById('carBrand');
+            const modelSelect = document.getElementById('carModel');
+            const selectedBrand = brandSelect.value;
+
+            // Limpiar opciones existentes
+            modelSelect.innerHTML = '<option value="">Seleccionar modelo</option>';
+
+            if (selectedBrand && carModels[selectedBrand]) {
+                // Agregar modelos de la marca seleccionada
+                carModels[selectedBrand].forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+                
+                // Agregar opción de "Otro modelo"
+                const otherOption = document.createElement('option');
+                otherOption.value = 'otro';
+                otherOption.textContent = 'Otro modelo (especificar)';
+                modelSelect.appendChild(otherOption);
+                
+            } else if (selectedBrand === 'Otro') {
+                // Si selecciona "Otro", agregar input para modelo personalizado
+                const customOption = document.createElement('option');
+                customOption.value = 'otro';
+                customOption.textContent = 'Escribir modelo personalizado';
+                modelSelect.appendChild(customOption);
+            }
+        }
+
+        // Manejar selección de modelo personalizado
+        document.addEventListener('change', function(e) {
+            if (e.target.id === 'carModel' && e.target.value === 'otro') {
+                const customModel = prompt('Ingresa el modelo del vehículo:');
+                if (customModel) {
+                    // Crear nueva opción con el modelo personalizado
+                    const option = document.createElement('option');
+                    option.value = customModel;
+                    option.textContent = customModel;
+                    option.selected = true;
+                    e.target.appendChild(option);
+                } else {
+                    e.target.value = '';
+                }
+            }
+        });
+
+        // Limpiar formulario y servicios seleccionados
+        function clearAllData() {
+            // Limpiar servicios seleccionados
+            selectedServices = [];
+            
+            // Resetear todos los botones de servicios
+            services.forEach(service => {
+                const serviceItem = document.getElementById(`service-${service.id}`);
+                const button = document.getElementById(`btn-${service.id}`);
+                
+                if (serviceItem && button) {
+                    serviceItem.classList.remove('selected');
+                    button.classList.remove('added');
+                    button.innerHTML = '➕ Agregar Servicio';
+                }
+            });
+
+            // Limpiar formulario del cliente
+            document.getElementById('customerForm').reset();
+            
+            // Limpiar modelo de vehículo
+            document.getElementById('carModel').innerHTML = '<option value="">Seleccionar modelo</option>';
+            
+            // Actualizar interfaz
+            updateSelectedServicesList();
+            updateTotal();
+            
+            // Ocultar factura y botones
+            document.getElementById('invoice').style.display = 'none';
+            document.getElementById('printBtn').style.display = 'none';
+            document.getElementById('newQuoteBtn').style.display = 'none';
+
+            // Scroll hacia arriba
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Actualizar total
+        function updateTotal() {
+            const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
+            document.getElementById('totalAmount').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Generar cotización
+        function generateQuote() {
+            // Validar formulario
+            const form = document.getElementById('customerForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            if (selectedServices.length === 0) {
+                alert('Por favor selecciona al menos un servicio.');
+                return;
+            }
+
+            // Llenar datos en la factura
+            const invoiceDate = new Date().toLocaleDateString('es-ES');
+            const invoiceNumber = 'COT-' + Date.now().toString().slice(-6);
+
+            document.getElementById('invoiceDate').textContent = invoiceDate;
+            document.getElementById('invoiceNumber').textContent = invoiceNumber;
+            
+            // Datos del cliente
+            document.getElementById('invoiceCustomerName').textContent = document.getElementById('customerName').value;
+            document.getElementById('invoiceCustomerPhone').textContent = document.getElementById('customerPhone').value;
+            document.getElementById('invoiceCustomerEmail').textContent = document.getElementById('customerEmail').value || 'No proporcionado';
+            // Municipio
+            document.getElementById('invoiceCustomerMunicipio').textContent = document.getElementById('customerMunicipio').value || 'No proporcionado';
+            
+            // Datos del vehículo
+            document.getElementById('invoiceCarBrand').textContent = document.getElementById('carBrand').value;
+            document.getElementById('invoiceCarModel').textContent = document.getElementById('carModel').value;
+            document.getElementById('invoiceCarYear').textContent = document.getElementById('carYear').value;
+            document.getElementById('invoiceCarPlate').textContent = document.getElementById('carPlate').value || 'No proporcionado';
+
+            // Servicios en la tabla
+            const servicesTableBody = document.getElementById('invoiceServicesList');
+            servicesTableBody.innerHTML = selectedServices.map(service =>
+                `<tr>
+                    <td>${service.name}</td>
+                    <td>$${service.price.toFixed(2)}</td>
+                </tr>`
+            ).join('');
+
+            // Total
+            const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
+            document.getElementById('invoiceTotalAmount').textContent = `$${total.toFixed(2)}`;
+
+            // Mostrar factura y botones
+            document.getElementById('invoice').style.display = 'block';
+            document.getElementById('printBtn').style.display = 'block';
+            document.getElementById('newQuoteBtn').style.display = 'block';
+
+            // Scroll hacia la factura
+            document.getElementById('invoice').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Imprimir factura
+        function printInvoice() {
+            window.print();
+            
+            // Después de imprimir, limpiar todo para nueva cotización
+            setTimeout(() => {
+                const confirmClear = confirm('¿Deseas limpiar la información para una nueva cotización?');
+                if (confirmClear) {
+                    clearAllData();
+                }
+            }, 1000);
+        }
+
+        // Convertir placas a mayúsculas
+        document.getElementById('carPlate').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            generateServicesList();
+        });
+
+        // ---- New features: Payment simulation, Mini-map, WhatsApp ----
+
+        // WhatsApp number (international format without +). Replace with your number.
+        // We'll keep a mechanic object with contact info so map and WhatsApp use the same fake mechanic.
+        const mechanicContact = {
+            name: 'Ramón García',
+            phoneIntl: '5218116939340', // international format for wa.me (52 country code + number)
+            phoneDisplay: '5518116939340'
+        };
+        const WHATSAPP_NUMBER = mechanicContact.phoneIntl;
+
+        // Open the card modal first (simulate Mercado Pago flow)
+        function startPayment() {
+            const form = document.getElementById('customerForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            if (selectedServices.length === 0) {
+                alert('Por favor selecciona al menos un servicio antes de pagar.');
+                return;
+            }
+
+            // Open card modal
+            openCardModal();
+        }
+
+        function openCardModal() {
+            document.getElementById('cardModal').style.display = 'flex';
+            // reset fields
+            document.getElementById('cardNumber').value = '';
+            document.getElementById('cardExpiry').value = '';
+            document.getElementById('cardCvv').value = '';
+            document.getElementById('cardHolder').value = document.getElementById('customerName').value || '';
+            document.getElementById('cardError').style.display = 'none';
+        }
+
+        function closeCardModal() {
+            document.getElementById('cardModal').style.display = 'none';
+        }
+
+        // Formatting: card number spacing
+        document.addEventListener('input', function(e) {
+            if (e.target && e.target.id === 'cardNumber') {
+                const v = e.target.value.replace(/\D/g, '').slice(0,16);
+                e.target.value = v.replace(/(.{4})/g, '$1 ').trim();
+            }
+            if (e.target && e.target.id === 'cardExpiry') {
+                let v = e.target.value.replace(/[^0-9]/g, '').slice(0,4);
+                if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+                e.target.value = v;
+            }
+        });
+
+        // Basic Luhn check
+        function luhnCheck(cardNumber) {
+            const digits = cardNumber.replace(/\s+/g, '').split('').reverse().map(d => parseInt(d,10));
+            let sum = 0;
+            for (let i = 0; i < digits.length; i++) {
+                let d = digits[i];
+                if (i % 2 === 1) {
+                    d *= 2;
+                    if (d > 9) d -= 9;
+                }
+                sum += d;
+            }
+            return sum % 10 === 0;
+        }
+
+        function confirmCardPayment() {
+            const number = document.getElementById('cardNumber').value.replace(/\s+/g, '');
+            const expiry = document.getElementById('cardExpiry').value;
+            const cvv = document.getElementById('cardCvv').value;
+            const holder = document.getElementById('cardHolder').value || document.getElementById('customerName').value || '';
+
+            // validations
+            if (number.length < 13 || number.length > 16 || !/^[0-9]+$/.test(number)) {
+                showCardError('Número de tarjeta inválido');
+                return;
+            }
+            if (!luhnCheck(number)) {
+                showCardError('Número de tarjeta no pasa la validación');
+                return;
+            }
+            if (!/^\d{2}\/\d{2}$/.test(expiry)) {
+                showCardError('Formato de vencimiento inválido (MM/AA)');
+                return;
+            }
+            const parts = expiry.split('/');
+            const mm = parseInt(parts[0],10);
+            const yy = parseInt(parts[1],10) + 2000;
+            const now = new Date();
+            const expDate = new Date(yy, mm - 1 + 1, 1); // month after expiry
+            if (mm < 1 || mm > 12 || expDate <= now) {
+                showCardError('Tarjeta vencida o mes inválido');
+                return;
+            }
+            if (!/^[0-9]{3,4}$/.test(cvv)) {
+                showCardError('CVV inválido');
+                return;
+            }
+
+            // simulate tokenization
+            const confirmBtn = document.getElementById('confirmCardBtn');
+            confirmBtn.disabled = true;
+            const orig = confirmBtn.textContent;
+            confirmBtn.textContent = 'Procesando...';
+
+            setTimeout(() => {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = orig;
+                closeCardModal();
+
+                // simulate success: show payment overlay and invoice
+                document.getElementById('paymentOverlay').style.display = 'flex';
+                if (document.getElementById('invoice').style.display === 'none') generateQuote();
+            }, 1300);
+        }
+
+        function showCardError(msg) {
+            const el = document.getElementById('cardError');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+
+        function closePaymentOverlay() {
+            document.getElementById('paymentOverlay').style.display = 'none';
+        }
+
+        // Mini-map simulation
+        let truckTimer = null;
+
+        function showMechanicMap() {
+            document.getElementById('mapModal').style.display = 'flex';
+            animateTruck();
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').style.display = 'none';
+            stopTruckAnimation();
+        }
+
+        function animateTruck() {
+            const truck = document.getElementById('truckMarker');
+            const map = document.getElementById('miniMap');
+            if (!truck || !map) return;
+
+            let t = 0; // progress
+            const duration = 20; // seconds simulated
+            const steps = duration;
+
+            truck.style.left = '6px';
+            truck.style.top = (map.clientHeight - 20) + 'px';
+            document.getElementById('eta').textContent = duration.toString();
+
+            truckTimer = setInterval(() => {
+                t += 1/steps;
+                const x = 6 + t * (map.clientWidth - 24);
+                const y = map.clientHeight - (t * (map.clientHeight - 24)) - 10;
+                truck.style.left = x + 'px';
+                truck.style.top = y + 'px';
+
+                const remaining = Math.max(0, Math.round((1 - t) * duration));
+                document.getElementById('eta').textContent = remaining.toString();
+
+                if (t >= 1) {
+                    stopTruckAnimation();
+                    document.getElementById('eta').textContent = '0';
+                }
+            }, 1000);
+        }
+
+        function stopTruckAnimation() {
+            if (truckTimer) {
+                clearInterval(truckTimer);
+                truckTimer = null;
+            }
+        }
+
+        // Open WhatsApp with prefilled message
+        function openWhatsApp() {
+            try {
+                // ensure we have a phone number
+                const rawNumber = (typeof WHATSAPP_NUMBER !== 'undefined' && WHATSAPP_NUMBER) ? WHATSAPP_NUMBER : (mechanicContact && mechanicContact.phoneIntl ? mechanicContact.phoneIntl : null);
+                if (!rawNumber) {
+                    alert('Número de WhatsApp del mecánico no configurado.');
+                    console.error('openWhatsApp: missing WHATSAPP_NUMBER and mechanicContact.phoneIntl');
+                    return;
+                }
+
+                // sanitize number: keep digits only
+                const digits = rawNumber.toString().replace(/\D/g, '');
+                if (!digits || digits.length < 8) {
+                    alert('Número de WhatsApp inválido: ' + rawNumber);
+                    console.error('openWhatsApp: invalid phone after sanitization', rawNumber);
+                    return;
+                }
+
+                // Build message
+                const clientName = (document.getElementById('customerName') && document.getElementById('customerName').value) ? document.getElementById('customerName').value : 'Cliente';
+                const municipio = (document.getElementById('customerMunicipio') && document.getElementById('customerMunicipio').value) ? document.getElementById('customerMunicipio').value : '';
+                const invoiceNumber = (document.getElementById('invoiceNumber') && document.getElementById('invoiceNumber').textContent) ? document.getElementById('invoiceNumber').textContent : '';
+                const total = (document.getElementById('invoiceTotalAmount') && document.getElementById('invoiceTotalAmount').textContent) ? document.getElementById('invoiceTotalAmount').textContent : ((document.getElementById('totalAmount') && document.getElementById('totalAmount').textContent) ? document.getElementById('totalAmount').textContent : '');
+                const servicesText = (selectedServices && selectedServices.length > 0)
+                    ? selectedServices.map(s => `- ${s.name} ($${s.price.toFixed(2)})`).join('\n')
+                    : '- Sin servicios seleccionados';
+
+                const lines = [];
+                lines.push('Pago recibido ✅');
+                if (invoiceNumber) lines.push(`Cotización: ${invoiceNumber}`);
+                lines.push(`Cliente: ${clientName}`);
+                if (municipio) lines.push(`Municipio: ${municipio}`);
+                lines.push('Servicios:');
+                lines.push(servicesText);
+                lines.push(`Total: ${total}`);
+                lines.push('Observaciones: El cliente ya pagó.');
+
+                // timestamp
+                try { lines.push(`Fecha pago: ${new Date().toLocaleString('es-ES')}`); } catch(e){}
+
+                // maps link if available
+                try {
+                    const coords = window._clickcar_clientCoords;
+                    if (coords && Array.isArray(coords) && coords.length === 2) {
+                        const gmaps = `https://www.google.com/maps/search/?api=1&query=${coords[0]},${coords[1]}`;
+                        lines.push(`Ubicación: ${gmaps}`);
+                    }
+                } catch(e) {}
+
+                let message = lines.join('\n');
+                // prevent excessively long messages that might break URL handling
+                if (message.length > 1500) {
+                    message = message.slice(0, 1500) + '\n(Contenido truncado)';
+                }
+
+                const waLink = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+
+                // Open via anchor click to reduce popup-blocker issues
+                try {
+                    const a = document.createElement('a');
+                    a.href = waLink;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => { try { document.body.removeChild(a); } catch(e){} }, 1000);
+                } catch (openErr) {
+                    console.warn('openWhatsApp: anchor click failed, falling back to window.open', openErr);
+                    try { window.open(waLink, '_blank'); } catch (e) { window.location.href = waLink; }
+                }
+
+            } catch (err) {
+                console.error('openWhatsApp unexpected error', err);
+                alert('No se pudo abrir WhatsApp. Revisa la consola para más detalles.');
+            }
+        }
+    </script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Leaflet map variables
+        let lp_map = null;
+        let lp_marker = null;
+        let lp_anim = null;
+
+        function showMechanicMap() {
+            document.getElementById('mapModal').style.display = 'flex';
+            const miniMap = document.getElementById('miniMap');
+
+
+            // dynamic mechanic info: use a fake mechanic (do NOT display client personal data)
+            const mechanic = {
+                name: 'Ramón García',
+                phone: '55 1234 5678',
+                vehicle: 'Moto 150',
+                plate: 'MEC-001'
+            };
+            // Show only mechanic details (not the client's info)
+            document.getElementById('mechanicInfo').textContent = `Mecánico: ${mechanic.name} · Vehículo: ${mechanic.vehicle} · Tel: ${mechanic.phone} · Placas: ${mechanic.plate}`;
+
+            // Option A: use client's geolocation as origin; mechanic moves towards client
+            // helper: compute destination point given start lat/lng, bearing (deg) and distance (meters)
+            function destinationPoint(lat, lng, bearingDeg, distanceMeters) {
+                const R = 6371000; // Earth radius in meters
+                const bearing = bearingDeg * Math.PI / 180;
+                const lat1 = lat * Math.PI / 180;
+                const lng1 = lng * Math.PI / 180;
+                const dDivR = distanceMeters / R;
+                const lat2 = Math.asin(Math.sin(lat1) * Math.cos(dDivR) + Math.cos(lat1) * Math.sin(dDivR) * Math.cos(bearing));
+                const lng2 = lng1 + Math.atan2(Math.sin(bearing) * Math.sin(dDivR) * Math.cos(lat1), Math.cos(dDivR) - Math.sin(lat1) * Math.sin(lat2));
+                return [lat2 * 180 / Math.PI, lng2 * 180 / Math.PI];
+            }
+
+            // default mechanic start (will be recalculated near client if geolocation available)
+            const mechanicStartDefault = [20.6597, -103.3496]; // example fallback
+
+            function initMapAndAnimate(clientCoords) {
+                if (!lp_map && typeof L !== 'undefined') {
+                    miniMap.innerHTML = '';
+                    const mapDiv = document.createElement('div');
+                    mapDiv.id = 'leafletMap';
+                    mapDiv.style.height = '260px';
+                    miniMap.appendChild(mapDiv);
+
+                    lp_map = L.map('leafletMap', { zoomControl: false, attributionControl: false }).setView(clientCoords, 13);
+                    // expose tileLayer globally so we can reload it later
+                    window._clickcar_tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { });
+                    window._clickcar_tileLayer.addTo(lp_map);
+                    // ensure container sizing
+                    const mapEl = document.getElementById('leafletMap');
+                    if (mapEl) { mapEl.style.width = '100%'; mapEl.style.height = '260px'; }
+                    // ensure tiles render after the map is visible
+                    setTimeout(() => {
+                        try { lp_map.invalidateSize(); console.log('Leaflet: invalidateSize called after creation'); } catch(e) { console.warn('Leaflet invalidateSize failed', e); }
+                    }, 250);
+                    // ensure tiles render after the map is visible
+                    setTimeout(() => {
+                        try { lp_map.invalidateSize(); console.log('Leaflet: invalidateSize called'); } catch(e) { console.warn('Leaflet invalidateSize failed', e); }
+                    }, 200);
+                    window._clickcar_tileLayer.on('tileerror', function(err) {
+                        console.error('Tile load error', err);
+                        const miniMap = document.getElementById('miniMap');
+                        if (miniMap) miniMap.innerHTML = '<div id="mapErrorMsg" style="height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#7f8c8d;"><div>No se pudo cargar el mapa.</div><div style="margin-top:8px;"><button onclick="reloadMap()" style="padding:8px 12px; border-radius:6px; background:#0066cc; color:white; border:none;">Reintentar</button></div></div>';
+                    });
+
+                    // client marker
+                    const clientIcon = L.divIcon({ html: '<div style="font-size:18px;">📍</div>', className: '', iconSize: [24,24], iconAnchor: [12,12] });
+                    L.marker(clientCoords, { icon: clientIcon }).addTo(lp_map);
+
+                    // determine mechanic start ~1.5 km away at random bearing
+                    const bearing = Math.floor(Math.random() * 360);
+                    const mechanicStart = destinationPoint(clientCoords[0], clientCoords[1], bearing, 1500);
+                    // mechanic marker
+                    const truckIcon = L.divIcon({ html: '<div style="font-size:22px;">🚚</div>', className: '', iconSize: [30,30], iconAnchor: [15,15] });
+                    lp_marker = L.marker(mechanicStart, { icon: truckIcon }).addTo(lp_map);
+
+                    // draw line
+                    const line = L.polyline([mechanicStart, clientCoords], { color: '#0066cc' }).addTo(lp_map);
+                    lp_map.fitBounds(line.getBounds(), { padding: [40,40] });
+                    // reflow after fitting bounds
+                    setTimeout(() => { try { lp_map.invalidateSize(); console.log('Leaflet: invalidateSize called after fitBounds'); } catch(e){} }, 300);
+                } else if (lp_map && lp_marker) {
+                    // reset marker and map view
+                    lp_marker.setLatLng(mechanicStart);
+                    lp_map.setView(clientCoords, 13);
+                }
+
+                // animate mechanic -> client smoothly
+                if (lp_anim) { cancelAnimationFrame(lp_anim); lp_anim = null; }
+                const duration = 20000; // ms
+                const startTime = performance.now();
+                const sLat = mechanicStart[0], sLng = mechanicStart[1];
+                const eLat = clientCoords[0], eLng = clientCoords[1];
+
+                function step(now) {
+                    const t = Math.min(1, (now - startTime) / duration);
+                    const lat = sLat + (eLat - sLat) * t;
+                    const lng = sLng + (eLng - sLng) * t;
+                    if (lp_marker) lp_marker.setLatLng([lat, lng]);
+                    const remaining = Math.max(0, Math.round((1 - t) * 20));
+                    document.getElementById('eta').textContent = remaining.toString();
+                    if (t < 1) {
+                        lp_anim = requestAnimationFrame(step);
+                    } else {
+                        lp_anim = null;
+                        document.getElementById('eta').textContent = '0';
+                    }
+                }
+
+                lp_anim = requestAnimationFrame(step);
+            }
+
+            // get client's location and animate
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => {
+                    const clientPos = [pos.coords.latitude, pos.coords.longitude];
+                    // persist client coords so other flows (WhatsApp) can use them
+                    try { window._clickcar_clientCoords = clientPos; } catch (e) {}
+                    initMapAndAnimate(clientPos);
+                }, (err) => {
+                    // fallback: use a default nearby coordinate
+                    try { window._clickcar_clientCoords = [20.6736, -103.3250]; } catch(e) {}
+                    initMapAndAnimate([20.6736, -103.3250]);
+                }, { timeout: 7000 });
+            } else {
+                try { window._clickcar_clientCoords = [20.6736, -103.3250]; } catch(e) {}
+                initMapAndAnimate([20.6736, -103.3250]);
+            }
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').style.display = 'none';
+            // stop leaflet animation
+            if (lp_anim) { cancelAnimationFrame(lp_anim); lp_anim = null; }
+        }
+
+        // Reload the tile layer (or re-init map) when user clicks reintentar
+        function reloadMap() {
+            const miniMap = document.getElementById('miniMap');
+            if (!miniMap) return;
+            // If map exists, try to re-add tile layer
+            if (window._clickcar_tileLayer && lp_map) {
+                try {
+                    lp_map.removeLayer(window._clickcar_tileLayer);
+                } catch (e) {}
+                window._clickcar_tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {});
+                window._clickcar_tileLayer.addTo(lp_map);
+                setTimeout(() => { try { lp_map.invalidateSize(); } catch(e){} }, 200);
+                return;
+            }
+
+            // Otherwise re-open the modal flow to re-init map
+            document.getElementById('mapModal').style.display = 'flex';
+            // call showMechanicMap again to initialize
+            try { showMechanicMap(); } catch (e) { console.warn('reloadMap: showMechanicMap failed', e); }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1470 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #000000;
+    min-height: 100vh;
+    color: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    background: #000000;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(128, 32, 32, 0.08);
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+header h1 {
+    color: #ffffff;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+header p {
+    color: #ffffff;
+    font-size: 1.2em;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.services-section {
+    background: rgba(0, 0, 0, 0.98);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.services-section h2 {
+    color: #ffffff;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    border-bottom: 3px solid #5d6d7e;
+    padding-bottom: 10px;
+    font-weight: 600;
+}
+
+/* Professional quote card styles */
+.quote-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+
+.quote-header h3 { margin: 0; color: #f7f9fb; font-size: 1.15em; font-weight: 700; }
+.quote-sub { color: #9aa7b2; font-size: 0.95em; margin-top: 6px; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* minmax prevents overflow in flex/grid children */
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.form-group { display:flex; flex-direction:column; }
+.form-group label { color: #dfe9ef; font-weight:600; margin-bottom:6px; }
+.form-group input,
+.form-group select {
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.04);
+    color: #eef4f7;
+    font-size: 0.98em;
+    min-height: 44px;
+    width: 100%;
+    box-sizing: border-box; /* prevent padding from overflowing */
+}
+.form-group input:focus,
+.form-group select:focus { outline: none; box-shadow: 0 4px 18px rgba(0,136,204,0.12); border-color: rgba(0,136,204,0.4); }
+
+.quote-actions { margin-top:14px; display:flex; flex-direction:column; gap:8px; }
+.quote-actions .form-note { color:#9aa7b2; font-size:0.9em; margin-top:6px; }
+
+/* Make buttons inline and balanced inside the actions area */
+.quote-actions .btn { width: auto; padding: 10px 14px; min-width: 120px; }
+
+/* Ensure action buttons wrap nicely on small widths */
+.quote-actions > div { display:flex; flex-wrap:wrap; gap:8px; }
+
+/* Specific: make side column elements (right column) consistent */
+.selected-services, .total-section {
+    background: rgba(255,255,255,0.02);
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Improve mobile readability */
+@media (max-width: 480px) {
+    .quote-card { padding: 14px; }
+    .quote-header h3 { font-size: 1em; }
+    .form-group label { font-size: 0.95em; }
+    .form-group input, .form-group select { font-size: 15px; padding: 12px; }
+    .btn { font-size: 15px; padding: 12px 14px; }
+    .selected-services, .total-section { padding: 12px; }
+}
+
+@media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .quote-actions { align-items: stretch; }
+}
+
+/* Make sure quote-card doesn't allow children to protrude */
+.quote-card { overflow: hidden; }
+
+/* Fix input/select inside quote header or small containers */
+.quote-card .form-group input,
+.quote-card .form-group select { max-width: 100%; }
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.service-item {
+    background: #000;
+    border: 2px solid #e53935;
+    border-radius: 16px;
+    padding: 0;
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.18);
+    overflow: hidden;
+    background-image: none !important;
+}
+
+.service-item::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 58%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+    border-radius: 16px 16px 0 0;
+}
+
+.service-item[data-img]::before {
+    background-image: var(--service-img);
+}
+
+.service-overlay {
+    background: rgba(0,0,0,0.38);
+    padding: 28px 20px 20px 20px;
+    border-radius: 0 0 16px 16px;
+    position: relative;
+    z-index: 2;
+    margin-top: 0;
+    box-shadow: 0 -4px 24px #000a;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.service-content {
+    background: none;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.service-name, .service-description, .service-price {
+    text-shadow: 0 2px 8px #000b, 0 1px 0 #fff2;
+}
+
+.service-name {
+    color: #fff;
+    font-size: 1.2em;
+    font-weight: 700;
+}
+
+.service-description {
+    color: #eee;
+    font-size: 1em;
+}
+
+.service-price {
+    background: #e53935cc;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 16px;
+    font-size: 1.1em;
+    box-shadow: 0 2px 8px #e5393533;
+    display: inline-block;
+    padding: 6px 16px;
+    margin-bottom: 8px;
+}
+
+.service-btn {
+    position: relative;
+    z-index: 2;
+    margin-top: 8px;
+    width: 100%;
+    margin: 0;
+    border-radius: 0 0 16px 16px;
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 16px 0;
+    background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px #e5393533;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 1;
+}
+
+.service-btn:hover {
+    background: #fff;
+    color: #e53935;
+    border: 2px solid #e53935;
+}
+
+.btn {
+    background: linear-gradient(135deg, #5d6d7e 0%, #85929e 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+}
+
+.btn:hover {
+    background: linear-gradient(135deg, #4a5a6a 0%, #6c7b7f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.36);
+}
+
+.btn-success {
+    background: linear-gradient(135deg,#27ae60 0%,#1e8449 100%);
+    color: #fff;
+    border: none;
+}
+
+.btn-success:hover { transform: translateY(-2px); }
+
+.btn-print {
+    background: #fff;
+    color: #e53935;
+    border: 1px solid rgba(229,57,53,0.9);
+}
+
+.btn-print:hover {
+    background: rgba(229,57,53,0.95);
+    color: #fff;
+}
+
+.invoice {
+    background: #181818;
+    color: #fff;
+    border: 1.5px solid #e53935;
+    padding: 40px;
+    border-radius: 12px;
+    margin-top: 30px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    display: none;
+    border: 1px solid #e8eaed;
+}
+
+.invoice-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #5d6d7e;
+    padding-bottom: 20px;
+}
+
+.invoice-header h2 {
+    color: #34495e;
+    font-size: 2em;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.invoice-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.invoice-section h3 {
+    color: #34495e;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    border-bottom: 1px solid #d5dbdb;
+    padding-bottom: 5px;
+    font-weight: 600;
+}
+
+.invoice-section p {
+    margin-bottom: 8px;
+    color: #566573;
+}
+
+.invoice-services {
+    margin-bottom: 30px;
+}
+
+.services-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.services-table th,
+.services-table td {
+    border: 1px solid #d5dbdb;
+    padding: 12px;
+    text-align: left;
+}
+
+.services-table th {
+    background: #e53935;
+    color: #fff;
+}
+
+.services-table tr:nth-child(even) {
+    background: #222;
+}
+
+.invoice-total {
+    text-align: right;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #5d6d7e;
+}
+
+.invoice-total h3 {
+    color: #5d6d7e;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.invoice-total .amount {
+    font-size: 2em;
+    font-weight: bold;
+    color: #5d6d7e;
+}
+
+.banner-clickcar-bg {
+    width: 100%;
+    min-height: 220px;
+    background: url('imagen.jpg') center/cover no-repeat;
+    position: relative;
+    border-radius: 18px;
+    margin: 0 auto 32px auto;
+    max-width: 1100px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+.banner-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+}
+
+.banner-content {
+    text-align: center;
+    padding: 40px 10px 30px 10px;
+}
+
+.banner-title {
+    font-size: 3.2em;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 24px #000, 0 1px 0 #fff2;
+}
+
+.banner-title .white {
+    color: #fff;
+}
+
+.banner-title .red {
+    color: #e53935;
+}
+
+.banner-desc {
+    color: #fff;
+    font-size: 1.2em;
+    text-shadow: 0 2px 8px #000;
+}
+
+.service-img-wrap {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 12px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #181818;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px #0008;
+    border: 2px solid #e53935;
+}
+
+.service-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px #0006);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .quote-section {
+        position: static;
+        order: 2;
+    }
+    
+    .services-section {
+        order: 1;
+    }
+    
+    .services-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .service-item {
+        min-height: 220px;
+        border-radius: 12px;
+    }
+    
+    .service-item::before {
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .service-overlay {
+        border-radius: 0 0 12px 12px;
+        padding: 18px 10px 12px 10px;
+    }
+    
+    .service-name {
+        font-size: 0.95em;
+        margin-bottom: 8px;
+    }
+    
+    .service-description {
+        font-size: 0.8em;
+        margin-bottom: 10px;
+    }
+    
+    .service-price {
+        margin-bottom: 12px;
+        font-size: 0.85em;
+        padding: 5px 10px;
+    }
+    
+    .service-btn {
+        font-size: 0.85em;
+        padding: 12px 16px;
+    }
+    
+    .invoice-info {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+    }
+    
+    header p {
+        font-size: 1em;
+    }
+    
+    .services-section h2,
+    .quote-section h2 {
+        font-size: 1.5em;
+    }
+    
+    .btn {
+        font-size: 1em;
+        padding: 12px 25px;
+    }
+    
+    .invoice {
+        padding: 20px;
+        margin-top: 20px;
+    }
+    
+    .invoice-header h2 {
+        font-size: 1.6em;
+    }
+    
+    .services-table {
+        font-size: 0.9em;
+    }
+    
+    .services-table th,
+    .services-table td {
+        padding: 8px;
+    }
+    
+    .total-amount,
+    .invoice-total .amount {
+        font-size: 1.6em;
+    }
+}
+
+/* Optimizaciones específicas para iPhone (pantallas pequeñas) */
+@media (max-width: 480px) and (-webkit-min-device-pixel-ratio: 2) {
+    .container {
+        padding: 10px;
+    }
+    
+    header {
+        padding: 20px 15px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+    
+    header h1 {
+        font-size: 1.8em;
+        margin-bottom: 8px;
+    }
+    
+    header p {
+        font-size: 1em;
+        line-height: 1.4;
+    }
+    
+    .services-section,
+    .quote-section {
+        padding: 20px 15px;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+    
+    .services-section h2,
+    .quote-section h2 {
+        font-size: 1.4em;
+        margin-bottom: 20px;
+    }
+    
+    .service-item {
+        min-height: 180px;
+        padding: 15px;
+        border-radius: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .service-name {
+        font-size: 1em;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    
+    .service-description {
+        font-size: 0.85em;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    
+    .service-price {
+        font-size: 0.9em;
+        padding: 6px 12px;
+        margin-bottom: 12px;
+    }
+    
+    .service-btn {
+        font-size: 15px !important;
+        padding: 14px 20px;
+        min-height: 44px;
+        border-radius: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 18px;
+    }
+    
+    .form-group label {
+        font-size: 1em;
+        margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        min-height: 44px;
+        font-size: 16px !important;
+        padding: 14px;
+        border-radius: 10px;
+    }
+    
+    .btn {
+        min-height: 46px;
+        font-size: 15px !important;
+        padding: 14px 28px;
+        border-radius: 10px;
+    }
+    
+    .selected-services {
+        padding: 15px;
+        border-radius: 14px;
+        max-height: 180px;
+    }
+    
+    .selected-service {
+        font-size: 0.9em;
+        padding: 8px 0;
+    }
+    
+    .total-section {
+        padding: 18px;
+        border-radius: 14px;
+    }
+    
+    .total-section h3 {
+        font-size: 1.3em;
+        margin-bottom: 8px;
+    }
+    
+    .total-amount {
+        font-size: 1.8em;
+    }
+    
+    /* Ajustes para la factura en iPhone */
+    .invoice {
+        padding: 15px;
+        border-radius: 16px;
+        margin-top: 20px;
+    }
+    
+    .invoice-header h2 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    
+    .services-table {
+        font-size: 0.85em;
+    }
+    
+    .services-table th,
+    .services-table td {
+        padding: 8px 6px;
+    }
+}
+
+/* Optimizaciones para tablets (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr 350px;
+        gap: 25px;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 18px;
+    }
+    
+    .service-item {
+        min-height: 110px;
+        padding: 18px;
+    }
+    
+    header h1 {
+        font-size: 2.2em;
+    }
+    
+    .services-section h2,
+    .quote-section h2 {
+        font-size: 1.6em;
+    }
+}
+
+/* Optimizaciones para TV/pantallas grandes (min 1200px) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1400px;
+        padding: 30px;
+    }
+    
+    header {
+        padding: 40px;
+        margin-bottom: 40px;
+    }
+    
+    header h1 {
+        font-size: 3em;
+        margin-bottom: 15px;
+    }
+    
+    header p {
+        font-size: 1.4em;
+    }
+    
+    .main-content {
+        grid-template-columns: 1fr 450px;
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+    
+    .services-section,
+    .quote-section {
+        padding: 40px;
+    }
+    
+    .services-section h2,
+    .quote-section h2 {
+        font-size: 2.2em;
+        margin-bottom: 30px;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
+    }
+    
+    .service-item {
+        min-height: 140px;
+        padding: 25px;
+    }
+    
+    .service-name {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+    }
+    
+    .service-price {
+        font-size: 1em;
+        padding: 8px 14px;
+        margin-bottom: 18px;
+    }
+    
+    .service-btn {
+        font-size: 1em;
+        padding: 12px 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 14px;
+        font-size: 1.1em;
+    }
+    
+    .selected-services {
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .selected-services h3 {
+        font-size: 1.4em;
+        margin-bottom: 15px;
+    }
+    
+    .selected-service {
+        font-size: 1.05em;
+        padding: 10px 0;
+    }
+    
+    .total-section {
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .total-section h3 {
+        font-size: 1.8em;
+        margin-bottom: 12px;
+    }
+    
+    .total-amount {
+        font-size: 2.4em;
+    }
+    
+    .btn {
+        font-size: 1.2em;
+        padding: 18px 35px;
+        margin-bottom: 15px;
+    }
+    
+    .invoice {
+        padding: 50px;
+        margin-top: 40px;
+    }
+    
+    .invoice-header {
+        margin-bottom: 40px;
+        padding-bottom: 25px;
+    }
+    
+    .invoice-header h2 {
+        font-size: 2.4em;
+        margin-bottom: 12px;
+    }
+    
+    .invoice-info {
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+    
+    .invoice-section h3 {
+        font-size: 1.5em;
+        margin-bottom: 18px;
+    }
+    
+    .invoice-section p {
+        font-size: 1.1em;
+        margin-bottom: 10px;
+    }
+    
+    .services-table {
+        font-size: 1.1em;
+    }
+    
+    .services-table th,
+    .services-table td {
+        padding: 15px;
+    }
+    
+    .invoice-total {
+        padding: 25px;
+    }
+    
+    .invoice-total h3 {
+        font-size: 1.8em;
+        margin-bottom: 12px;
+    }
+    
+    .invoice-total .amount {
+        font-size: 2.4em;
+    }
+}
+
+/* Optimizaciones específicas para TV/pantallas muy grandes (min 1600px) */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1800px;
+        padding: 40px;
+    }
+    
+    header h1 {
+        font-size: 3.5em;
+    }
+    
+    header p {
+        font-size: 1.6em;
+    }
+    
+    .services-section h2,
+    .quote-section h2 {
+        font-size: 2.5em;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 30px;
+    }
+    
+    .service-item {
+        min-height: 160px;
+        padding: 30px;
+    }
+    
+    .service-name {
+        font-size: 1.2em;
+    }
+    
+    .service-price {
+        font-size: 1.1em;
+    }
+    
+    .service-btn {
+        font-size: 1.1em;
+        padding: 14px 28px;
+    }
+    
+    .btn {
+        font-size: 1.3em;
+        padding: 20px 40px;
+    }
+}
+
+/* Mejoras para accesibilidad y legibilidad */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Optimizaciones para modo landscape en iOS */
+@media (max-width: 768px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 2) {
+    .main-content {
+        grid-template-columns: 1fr 300px;
+        gap: 20px;
+    }
+    
+    .services-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 15px;
+    }
+    
+    .service-item {
+        min-height: 140px;
+        padding: 15px;
+    }
+    
+    header {
+        padding: 20px;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .services-section,
+    .quote-section {
+        padding: 20px;
+    }
+}
+
+/* Optimizaciones para iPhone específicos */
+/* iPhone SE y modelos pequeños */
+@media only screen 
+    and (device-width: 375px) 
+    and (device-height: 667px) 
+    and (-webkit-device-pixel-ratio: 2) {
+    
+    .container {
+        padding: 8px;
+    }
+    
+    .service-item {
+        min-height: 160px;
+        padding: 12px;
+    }
+    
+    .service-name {
+        font-size: 0.95em;
+    }
+    
+    .service-btn {
+        font-size: 14px !important;
+        padding: 12px 18px;
+        min-height: 42px;
+    }
+}
+
+/* iPhone 12/13/14 */
+@media only screen 
+    and (device-width: 390px) 
+    and (device-height: 844px) 
+    and (-webkit-device-pixel-ratio: 3) {
+    
+    .service-item {
+        min-height: 185px;
+        padding: 16px;
+    }
+    
+    .service-name {
+        font-size: 1.05em;
+    }
+    
+    .service-btn {
+        font-size: 16px !important;
+        padding: 15px 22px;
+        min-height: 46px;
+    }
+}
+
+/* iPhone Pro Max */
+@media only screen 
+    and (device-width: 428px) 
+    and (device-height: 926px) 
+    and (-webkit-device-pixel-ratio: 3) {
+    
+    .service-item {
+        min-height: 190px;
+        padding: 18px;
+    }
+    
+    .service-name {
+        font-size: 1.1em;
+    }
+    
+    .service-btn {
+        font-size: 17px !important;
+        padding: 16px 24px;
+        min-height: 48px;
+    }
+}
+
+/* Mejoras para todos los dispositivos iOS con notch */
+@media screen and (device-aspect-ratio: 19.5/9) and (-webkit-min-device-pixel-ratio: 2) {
+    .container {
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+        padding-left: max(15px, env(safe-area-inset-left));
+        padding-right: max(15px, env(safe-area-inset-right));
+    }
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) and (pointer: coarse) {
+    .service-item,
+    .btn,
+    .service-btn {
+        min-height: 44px; /* Tamaño mínimo recomendado para touch */
+    }
+    
+    .service-btn {
+        padding: 14px 20px;
+        font-size: 1em;
+    }
+    
+    .btn {
+        padding: 16px 30px;
+        font-size: 1.1em;
+    }
+    
+    .form-group input,
+    .form-group select {
+        min-height: 44px;
+        padding: 12px;
+        font-size: 16px; /* Previene zoom en iOS */
+    }
+    
+    /* Espaciado adicional para touch */
+    .service-item {
+        margin-bottom: 10px;
+    }
+    
+    /* Botones más grandes en la lista de servicios seleccionados */
+    .selected-service button {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* Optimizaciones específicas para iOS */
+@supports (-webkit-touch-callout: none) {
+    body {
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .form-group input,
+    .form-group select {
+        -webkit-appearance: none;
+        appearance: none;
+        border-radius: 12px;
+        font-size: 16px !important; /* Previene zoom en iOS */
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .service-btn,
+    .btn {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        border-radius: 12px;
+        font-size: 16px !important;
+        padding: 16px 24px;
+        cursor: pointer;
+    }
+    
+    .service-item {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        border-radius: 16px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .selected-services {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    
+    /* Mejoras para el scrolling en iOS */
+    .container {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    
+    /* Safari específico */
+    @media screen and (-webkit-min-device-pixel-ratio: 2) {
+        .service-item {
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+        }
+        
+        .btn, .service-btn {
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+        }
+    }
+}
+
+/* Mejoras para Android */
+@media (max-width: 768px) {
+    input[type="tel"],
+    input[type="email"],
+    input[type="text"],
+    input[type="number"],
+    select {
+        font-size: 16px !important; /* Previene zoom automático */
+    }
+}
+
+/* Optimizaciones específicas para iOS móvil */
+@media (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    .container {
+        padding: 15px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    header {
+        padding: 25px 20px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+    }
+    
+    header h1 {
+        font-size: 2.2em;
+        margin-bottom: 12px;
+        line-height: 1.2;
+    }
+    
+    .services-section,
+    .quote-section {
+        padding: 25px 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+    }
+    
+    .service-item {
+        min-height: 200px;
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .service-name {
+        font-size: 1.05em;
+        font-weight: 600;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+    
+    .service-description {
+        font-size: 0.9em;
+        margin-bottom: 15px;
+        line-height: 1.4;
+        color: #6c757d;
+    }
+    
+    .service-price {
+        font-size: 1em;
+        padding: 8px 16px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+    
+    .service-btn {
+        font-size: 16px !important;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        min-height: 48px;
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        font-size: 1.1em;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+    
+    .form-group input,
+    .form-group select {
+        min-height: 48px;
+        font-size: 16px !important;
+        padding: 16px;
+        border-radius: 12px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .btn {
+        min-height: 50px;
+        font-size: 16px !important;
+        padding: 16px 32px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        transform: translate3d(0, 0, 0);
+        -webkit-transform: translate3d(0, 0, 0);
+    }
+    
+    .selected-services {
+        border-radius: 16px;
+        padding: 20px;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .total-section {
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .total-amount {
+        font-size: 2em;
+        font-weight: 700;
+    }
+}
+
+.banner-clickcar {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto 24px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .banner-img {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 18px;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.18);
+            object-fit: cover;
+        }
+        @media (max-width: 600px) {
+            .banner-img {
+                max-width: 100%;
+                border-radius: 10px;
+            }
+            .banner-clickcar {
+                margin-bottom: 16px;
+            }
+        }
+/* Estilos de alto contraste para mejor visibilidad */
+@media (prefers-contrast: high) {
+    .service-item {
+        border-width: 3px;
+    }
+    
+    .service-item.selected {
+        border-width: 4px;
+    }
+    
+    .service-btn,
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .service-price {
+        border: 1px solid white;
+    }
+}
+
+/* Modo oscuro básico */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: #ecf0f1;
+    }
+    
+    header,
+    .services-section,
+    .quote-section {
+        background: rgba(52, 73, 94, 0.95);
+        color: #ecf0f1;
+    }
+    
+    .service-item {
+        background: #34495e;
+        border-color: #5d6d7e;
+        color: #ecf0f1;
+    }
+    
+    .service-item:hover {
+        background: #3c526b;
+    }
+    
+    /* Comentado para mejor visibilidad en iPhone
+    .form-group input,
+    .form-group select {
+        background: #34495e;
+        border-color: #5d6d7e;
+        color: #ecf0f1;
+    }
+    
+    .selected-services {
+        background: #2c3e50;
+        border-color: #5d6d7e;
+    }
+    
+    .services-table th {
+        background: #2c3e50;
+    }
+    
+    .services-table tr:nth-child(even) {
+        background: #34495e;
+    }
+    */
+}
+
+/* Fuentes más grandes para TV */
+@media (min-width: 1920px) {
+    html {
+        font-size: 18px; /* Aumenta el tamaño base de fuente */
+    }
+    
+    .container {
+        max-width: 2000px;
+    }
+    
+    header h1 {
+        font-size: 4em;
+    }
+    
+    .services-section h2,
+    .quote-section h2 {
+        font-size: 3em;
+    }
+    
+    .service-name {
+        font-size: 1.4em;
+        line-height: 1.3;
+    }
+    
+    .service-btn,
+    .btn {
+        font-size: 1.4em;
+        padding: 20px 40px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        font-size: 1.3em;
+        padding: 16px;
+    }
+    
+    .total-amount {
+        font-size: 3em;
+    }
+}
+
+/* Estilos de impresión */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .container > *:not(.invoice) {
+        display: none !important;
+    }
+    
+    .invoice {
+        display: block !important;
+        box-shadow: none;
+        margin: 0;
+        padding: 20px;
+    }
+}
+
+/* Force readable inputs/selects and placeholder on all platforms (fix white fields issue) */
+.form-group input,
+.form-group select,
+.quote-card .form-group input,
+.quote-card .form-group select {
+    background: rgba(0,0,0,0.35) !important; /* dark translucent so text is visible */
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+.form-group input::placeholder,
+.form-group select::placeholder,
+.quote-card .form-group input::placeholder,
+.quote-card .form-group select::placeholder {
+    color: rgba(255,255,255,0.6) !important;
+}
+
+/* Small tweak for dropdown arrows on dark background */
+.form-group select { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.8) 50%), linear-gradient(135deg, rgba(255,255,255,0.8) 50%, transparent 50%); background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px); background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
